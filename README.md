@@ -24,70 +24,96 @@ In this tutorial, we explore network traffic to and from Azure Virtual Machines 
 <h2>Actions and Observations</h2>
 
 <p>
-To start, access the Domain Controller using an Admin account and launch Active Directory Users and Computers. Then, log in to the Windows 10 VM using any user account within the Domain.
+Create a Resource Group in Microsoft Azure and set up two Virtual Machines within it—one running Windows 10 and the other Ubuntu. Ensure both Virtual Machines are on the same Virtual Network.
 
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/GDF0i7Q.png." height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/3gq5GXY.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/iY4YD46.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img src="https://i.imgur.com/uVEiNmE.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/vrCmK08.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/0uHKYrW.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
 </p>
 <p>
-On the Domain Controller's C:\ drive, create four folders: "read-access," "write-access," "no-access," and "accounting." These names are for this example. Share the "read" and "write" folders with the "Domain Users" group, assigning read-only and read/write permissions respectively. Share only the "no-access" folder with the "Domain Users" group assigning read/write permissions.
+Access the Windows VM using Remote Desktop and download Wireshark to monitor network traffic within the VM.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/zjKGcjQ.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/WPFpBdG.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/IQ6RHbb.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/sWuRWWC.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img src="https://i.imgur.com/H0fzCdU.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/DKuJmg6.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
 </p>
 <p>
-Moving forward, return to the user on the Windows 10 VM and launch File Explorer. In the search bar, type \dc-1. This action will display the files shared on the Domain Network.
+When you start capturing packets, Wireshark will display all the traffic and protocols running in the background.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/in0XT6Y.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/YUyAChq.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img src="https://i.imgur.com/p1l9A7W.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
 </p>
 <p>
-Observe that as a user, access to the "no-access" folder is restricted. Additionally, the "accounting" folder remains inaccessible, as no actions have been taken on it yet.
+Apply an ICMP filter to observe the traffic between our two virtual machines. By pinging the private IP address of the other VM, we can observe the ICMP protocol using the private IP of the VM initiating the ping, along with the ping request and reply.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/yd035UU.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/Fs3n3zL.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img src="https://i.imgur.com/H6w2Sy5.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/rDVmFey.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
 <p>
-Note that while we can access the "read-access" folder, we are unable to create any content within it. Conversely, we have the ability to create documents within the "write-access" folder.
+In this instance, I pinged Google instead of the other VM. We can observe the response from Google's IP address.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/xC0v21c.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/cD74wri.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/UcGt3oy.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img src="https://i.imgur.com/RXU2oy0.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
 <p>
-Next, in Active Directory Users & Computers, generate a New Organizational Unit labeled "_SECURITY GROUPS." Within this new Organizational Unit, establish a group titled "ACCOUNTANTS."
+Here, I initiate a continuous ping to the second VM to observe how firewalls operate.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/WM1VRet.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/UxYwEOp.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/P3WrYgV.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
+<img src="https://i.imgur.com/0D6Mb5M.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
 </p>
-Afterward, navigate back to the accounting folder and share it with the "ACCOUNTANTS" group, granting them read/write permissions. Confirm that the current user on Client-1 still does not have access to the accounting group.
-</p>
-<br />
-
-<p>
-<img src="https://i.imgur.com/XIi084D.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/7nrAS8N.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
-</p>
-In this step, we're accessing the properties of the ACCOUNTANTS group on the Domain controller. We're navigating to the members tab to add any domain user to the group.
+ICMP is the protocol used when you ping the VM. To block this traffic, I return to Azure, access the Ubuntu VM, and set a rule to block all ICMP traffic.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/VXpyWBV.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/zldeJxl.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
+<img src="https://i.imgur.com/CCXFKKE.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/EPfuV5K.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
 </p>
-If the change to folder accessibility was made while the user was still logged in, the folder will remain inaccessible until the user logs out and logs back in for the change to take effect. Now, as a member of the ACCOUNTANTS group, the user has access to the folder.
+Deleting or modifying the rule to allow ICMP traffic will enable the request and replies to continue flowing through.
 </p>
 <br />
 
 <p>
-<img src="https://i.imgur.com/h5F5F4P.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
+<img src="https://i.imgur.com/XR1Uovj.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/pOfxqWl.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
 </p>
+Here, we can observe SSH traffic. 
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/sIXKVaa.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/foP3T9p.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
+</p>
+<br />
+
+This allows access to the Command Line of the other VM, with traffic being visible for every text or command entered.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/6YdILQY.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
+</p>
+<br />
+
+Here, DHCP traffic was observed. Upon using the command "ipconfig /renew," DHCP reissued our IP address.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/ImiNu7c.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> <img src="https://i.imgur.com/h5F5F4P.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
+</p>
+<br />
+
+Here, we observe DNS traffic. By using the command "nslookup," we can notice the different IP addresses as well as other information associated with these websites.
+</p>
+<br />
+
+<p>
+<img src="https://i.imgur.com/MO9423w.png" height="80%" width="80%" alt="Disk Sanitization Steps"/> 
